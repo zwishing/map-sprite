@@ -60,7 +60,7 @@ editor.setThemeColor("#2f9e6a");
 editor.destroy();
 ```
 
-The editor owns its UI and supports SVG upload, drag-and-drop import, icon order reordering, rotation, layout strategy switching, gap configuration, theme color switching, transparent checkerboard preview, JSON preview, and ZIP export.
+The editor owns its UI and supports SVG upload, drag-and-drop import, icon order reordering, icon rotation, layout strategy switching, gap configuration, theme color switching, transparent checkerboard preview, JSON preview, and ZIP export.
 
 Editor layout modes:
 
@@ -132,7 +132,7 @@ Default packing options:
 }
 ```
 
-Rotation is always disabled because rotated map icons would render incorrectly in downstream styles.
+Packer-level rotation is always disabled because automatic rectangle rotation would desynchronize the rendered icon from downstream map usage. Per-icon `rotation` is supported in 90-degree steps and is reflected in the rendered PNG and generated JSON bounds.
 
 Packing logic options:
 
@@ -148,7 +148,7 @@ npm install
 npm run dev
 ```
 
-The example supports SVG upload, drag-and-drop, canvas preview, click selection, deletion, JSON preview, and ZIP export.
+The example supports SVG upload, drag-and-drop import, layout mode switching, gap changes, theme color changes, transparent checkerboard canvas preview, click selection, custom-mode reorder dragging, rotation, deletion, JSON preview, and ZIP export.
 
 ## Development
 
