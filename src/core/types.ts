@@ -62,7 +62,7 @@ export interface RenderSpriteOptions {
 
 export type SpritePngRenderer = (
   sprite: SpriteResult,
-  options?: RenderSpriteOptions
+  options?: RenderSpriteOptions,
 ) => Promise<Blob>;
 
 export interface ExportSpriteZipOptions {

@@ -26,7 +26,7 @@ export function parseSvgText(svgText: string, fileName: string): SvgIconInput {
 
   if (!isPositiveNumber(resolvedWidth) || !isPositiveNumber(resolvedHeight)) {
     throw new Error(
-      `SVG file "${fileName}" must provide positive width/height or a usable viewBox.`
+      `SVG file "${fileName}" must provide positive width/height or a usable viewBox.`,
     );
   }
 
@@ -39,7 +39,7 @@ export function parseSvgText(svgText: string, fileName: string): SvgIconInput {
     svgText: trimmed,
     width: Math.ceil(resolvedWidth),
     height: Math.ceil(resolvedHeight),
-    viewBox
+    viewBox,
   };
 }
 
@@ -68,7 +68,7 @@ function parseStyleDimensions(style: string | undefined): {
 
   return {
     width: parseLength(readStyleDeclaration(style, "width")),
-    height: parseLength(readStyleDeclaration(style, "height"))
+    height: parseLength(readStyleDeclaration(style, "height")),
   };
 }
 

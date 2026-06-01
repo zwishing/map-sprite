@@ -17,6 +17,6 @@ function createSpriteJsonItem(icon: PackedIcon, pixelRatio: 1 | 2): SpriteJsonIt
     height: icon.height * pixelRatio,
     x: icon.x * pixelRatio,
     y: icon.y * pixelRatio,
-    pixelRatio
+    pixelRatio,
   };
 }

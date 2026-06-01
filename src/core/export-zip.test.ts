@@ -13,8 +13,8 @@ describe("exportSpriteZip", () => {
         fileName: "valve.svg",
         svgText: '<svg width="10" height="10"></svg>',
         width: 10,
-        height: 10
-      }
+        height: 10,
+      },
     ]);
 
     const zipBlob = await exportSpriteZip(sprite, { renderPng: fakePngRenderer });
@@ -37,8 +37,8 @@ describe("exportSpriteZip", () => {
       exportSpriteZip(sprite, {
         includeNormal: false,
         includeRetina: false,
-        renderPng: fakePngRenderer
-      })
+        renderPng: fakePngRenderer,
+      }),
     ).rejects.toThrow(/At least one/);
   });
 });

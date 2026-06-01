@@ -153,6 +153,8 @@ The example supports SVG upload, drag-and-drop import, layout mode switching, ga
 ## Development
 
 ```bash
+npm run format:check
+npm run format
 npm test
 npm run typecheck
 npm run build

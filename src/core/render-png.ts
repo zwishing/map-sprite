@@ -2,7 +2,7 @@ import type { PackedIcon, RenderSpriteOptions, SpriteResult } from "./types";
 
 export async function renderSpritePng(
   sprite: SpriteResult,
-  options: RenderSpriteOptions = {}
+  options: RenderSpriteOptions = {},
 ): Promise<Blob> {
   const pixelRatio = options.pixelRatio ?? 1;
 
@@ -37,7 +37,7 @@ function drawRotatedIcon(
   context: CanvasRenderingContext2D,
   image: HTMLImageElement,
   icon: PackedIcon,
-  pixelRatio: number
+  pixelRatio: number,
 ) {
   context.save();
   context.translate(icon.x * pixelRatio, icon.y * pixelRatio);

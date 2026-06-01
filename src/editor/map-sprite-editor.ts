@@ -7,7 +7,7 @@ import {
   type SpritePackingLogic,
   type SpriteResult,
   type SpriteRotation,
-  type SvgIconInput
+  type SvgIconInput,
 } from "../core";
 import { editorStyles } from "./styles";
 import type { MapSpriteEditorLayout, MapSpriteEditorOptions, MapSpriteEditorState } from "./types";
@@ -73,7 +73,7 @@ export class MapSpriteEditor {
   getState(): MapSpriteEditorState {
     return {
       icons: this.icons,
-      sprite: this.createCurrentSprite()
+      sprite: this.createCurrentSprite(),
     };
   }
 
@@ -93,7 +93,9 @@ export class MapSpriteEditor {
 
   private freezeCustomPositions(sprite: SpriteResult | undefined) {
     if (sprite) {
-      this.customPositions = new Map(sprite.icons.map((icon) => [icon.id, { x: icon.x, y: icon.y }]));
+      this.customPositions = new Map(
+        sprite.icons.map((icon) => [icon.id, { x: icon.x, y: icon.y }]),
+      );
     }
     this.ensureCustomPositions(this.icons);
   }
@@ -118,14 +120,15 @@ export class MapSpriteEditor {
   }
 
   private getNextCustomPosition(): CanvasPoint {
-    const currentSprite = this.customPositions.size > 0 ? this.createCustomSpriteFromPositions() : undefined;
+    const currentSprite =
+      this.customPositions.size > 0 ? this.createCustomSpriteFromPositions() : undefined;
     if (!currentSprite || currentSprite.icons.length === 0) {
       return { x: 1, y: 1 };
     }
 
     return {
       x: 1,
-      y: currentSprite.height + this.iconPadding
+      y: currentSprite.height + this.iconPadding,
     };
   }
 
@@ -136,7 +139,7 @@ export class MapSpriteEditor {
       return {
         ...packedIcon,
         x: position.x,
-        y: position.y
+        y: position.y,
       };
     });
 
@@ -144,7 +147,7 @@ export class MapSpriteEditor {
       width: getCustomSpriteSize(packedIcons, "width"),
       height: getCustomSpriteSize(packedIcons, "height"),
       icons: packedIcons,
-      json: createSpriteJson(packedIcons, 1)
+      json: createSpriteJson(packedIcons, 1),
     };
   }
 
@@ -161,7 +164,7 @@ export class MapSpriteEditor {
     return createSprite(icons, {
       logic: this.layoutMode as SpritePackingLogic,
       padding: this.iconPadding,
-      preserveOrder: true
+      preserveOrder: true,
     });
   }
 
@@ -179,7 +182,7 @@ export class MapSpriteEditor {
       return {
         ...packedIcon,
         x: position.x,
-        y: position.y
+        y: position.y,
       };
     });
 
@@ -189,7 +192,7 @@ export class MapSpriteEditor {
       width: getCustomSpriteSize(packedIcons, "width"),
       height: getCustomSpriteSize(packedIcons, "height"),
       icons: packedIcons,
-      json: createSpriteJson(packedIcons, 1)
+      json: createSpriteJson(packedIcons, 1),
     };
   }
 
@@ -220,7 +223,7 @@ export class MapSpriteEditor {
   private renderMarkup(
     sprite: SpriteResult | undefined,
     selectedIcon: PackedIcon | undefined,
-    spriteError: string | undefined
+    spriteError: string | undefined,
   ) {
     const activeError = this.error ?? spriteError;
     const json = JSON.stringify(sprite?.json ?? {}, null, 2);
@@ -332,7 +335,9 @@ export class MapSpriteEditor {
 
   private bindEvents(sprite: SpriteResult | undefined) {
     const fileInput = this.container.querySelector<HTMLInputElement>(".mse-file-input");
-    this.container.querySelector(".mse-upload")?.addEventListener("click", () => fileInput?.click());
+    this.container
+      .querySelector(".mse-upload")
+      ?.addEventListener("click", () => fileInput?.click());
     fileInput?.addEventListener("change", () => {
       if (fileInput.files) {
         void this.addFiles(fileInput.files);
@@ -350,36 +355,45 @@ export class MapSpriteEditor {
       void this.exportZip(sprite);
     });
 
-    this.container.querySelector<HTMLSelectElement>(".mse-logic")?.addEventListener("change", (event) => {
-      const currentSprite = this.resolveSpriteState().sprite;
-      const nextLayoutMode = (event.currentTarget as HTMLSelectElement).value as MapSpriteEditorLayout;
-      if (nextLayoutMode === "custom") {
-        this.freezeCustomPositions(currentSprite);
-      } else {
-        this.clearDragState();
-      }
-      this.layoutMode = nextLayoutMode;
-      this.render();
-    });
+    this.container
+      .querySelector<HTMLSelectElement>(".mse-logic")
+      ?.addEventListener("change", (event) => {
+        const currentSprite = this.resolveSpriteState().sprite;
+        const nextLayoutMode = (event.currentTarget as HTMLSelectElement)
+          .value as MapSpriteEditorLayout;
+        if (nextLayoutMode === "custom") {
+          this.freezeCustomPositions(currentSprite);
+        } else {
+          this.clearDragState();
+        }
+        this.layoutMode = nextLayoutMode;
+        this.render();
+      });
 
-    this.container.querySelector<HTMLInputElement>(".mse-gap")?.addEventListener("change", (event) => {
-      const nextPadding = Number((event.currentTarget as HTMLInputElement).value);
-      this.iconPadding = Number.isFinite(nextPadding) ? Math.max(0, Math.round(nextPadding)) : 0;
-      if (this.isCustomLayout()) {
-        this.reflowCustomPositions(this.icons);
-      }
-      this.render();
-    });
+    this.container
+      .querySelector<HTMLInputElement>(".mse-gap")
+      ?.addEventListener("change", (event) => {
+        const nextPadding = Number((event.currentTarget as HTMLInputElement).value);
+        this.iconPadding = Number.isFinite(nextPadding) ? Math.max(0, Math.round(nextPadding)) : 0;
+        if (this.isCustomLayout()) {
+          this.reflowCustomPositions(this.icons);
+        }
+        this.render();
+      });
 
-    this.container.querySelector<HTMLSelectElement>(".mse-zoom")?.addEventListener("change", (event) => {
-      this.zoom = Number((event.currentTarget as HTMLSelectElement).value);
-      this.render();
-    });
+    this.container
+      .querySelector<HTMLSelectElement>(".mse-zoom")
+      ?.addEventListener("change", (event) => {
+        this.zoom = Number((event.currentTarget as HTMLSelectElement).value);
+        this.render();
+      });
 
-    this.container.querySelector<HTMLInputElement>(".mse-theme")?.addEventListener("input", (event) => {
-      this.themeColor = normalizeThemeColor((event.currentTarget as HTMLInputElement).value);
-      this.render();
-    });
+    this.container
+      .querySelector<HTMLInputElement>(".mse-theme")
+      ?.addEventListener("input", (event) => {
+        this.themeColor = normalizeThemeColor((event.currentTarget as HTMLInputElement).value);
+        this.render();
+      });
 
     this.bindListEvents(sprite);
     this.bindCanvasEvents(sprite);
@@ -477,13 +491,14 @@ export class MapSpriteEditor {
         return;
       }
 
-      const shouldRedrawSelection = this.selectedIconId !== icon.id || this.dragPreviewTargetId !== undefined;
+      const shouldRedrawSelection =
+        this.selectedIconId !== icon.id || this.dragPreviewTargetId !== undefined;
       this.selectedIconId = icon.id;
       this.clearDragState();
       if (this.isCustomLayout()) {
         this.pendingCanvasDrag = {
           iconId: icon.id,
-          start: this.getCanvasPoint(canvas, sprite, event)
+          start: this.getCanvasPoint(canvas, sprite, event),
         };
       }
       if (shouldRedrawSelection) {
@@ -574,14 +589,18 @@ export class MapSpriteEditor {
   }
 
   private async addFiles(fileList: FileList | File[]) {
-    const svgFiles = [...fileList].filter((file) => file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg"));
+    const svgFiles = [...fileList].filter(
+      (file) => file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg"),
+    );
     if (svgFiles.length === 0) {
       this.setError("Select or drop at least one SVG file.");
       return;
     }
 
     try {
-      const nextIcons = await Promise.all(svgFiles.map(async (file) => parseSvgText(await file.text(), file.name)));
+      const nextIcons = await Promise.all(
+        svgFiles.map(async (file) => parseSvgText(await file.text(), file.name)),
+      );
       const byName = new Map(this.icons.map((icon) => [icon.name, icon]));
       for (const icon of nextIcons) {
         byName.set(icon.name, icon);
@@ -637,9 +656,9 @@ export class MapSpriteEditor {
       icon.id === iconId
         ? {
             ...icon,
-            rotation: rotateBy(icon.rotation ?? 0, delta)
+            rotation: rotateBy(icon.rotation ?? 0, delta),
           }
-        : icon
+        : icon,
     );
     if (this.isCustomLayout()) {
       this.reflowCustomPositions(this.icons);
@@ -675,11 +694,7 @@ export class MapSpriteEditor {
     }
 
     const previousSprite = this.createCustomSpriteFromPositions();
-    const maxRowWidth = Math.max(
-      previousSprite.width,
-      ...packedIcons.map((icon) => icon.width),
-      1
-    );
+    const maxRowWidth = Math.max(previousSprite.width, ...packedIcons.map((icon) => icon.width), 1);
     const nextPositions = new Map<string, CanvasPoint>();
     let x = 1;
     let y = 1;
@@ -742,7 +757,7 @@ export class MapSpriteEditor {
     return [
       ...withoutDraggedIcon.slice(0, targetIndex),
       draggedIcon,
-      ...withoutDraggedIcon.slice(targetIndex)
+      ...withoutDraggedIcon.slice(targetIndex),
     ];
   }
 
@@ -754,7 +769,10 @@ export class MapSpriteEditor {
     }
 
     const swappedIcons = [...icons];
-    [swappedIcons[draggedIndex], swappedIcons[targetIndex]] = [swappedIcons[targetIndex], swappedIcons[draggedIndex]];
+    [swappedIcons[draggedIndex], swappedIcons[targetIndex]] = [
+      swappedIcons[targetIndex],
+      swappedIcons[draggedIndex],
+    ];
     return swappedIcons;
   }
 
@@ -769,24 +787,31 @@ export class MapSpriteEditor {
 
     return [...sprite.icons]
       .reverse()
-      .find((icon) => x >= icon.x && x <= icon.x + icon.width && y >= icon.y && y <= icon.y + icon.height);
+      .find(
+        (icon) =>
+          x >= icon.x && x <= icon.x + icon.width && y >= icon.y && y <= icon.y + icon.height,
+      );
   }
 
-  private getCanvasPoint(canvas: HTMLCanvasElement, sprite: SpriteResult, event: MouseEvent): CanvasPoint {
+  private getCanvasPoint(
+    canvas: HTMLCanvasElement,
+    sprite: SpriteResult,
+    event: MouseEvent,
+  ): CanvasPoint {
     const rect = canvas.getBoundingClientRect();
     const logicalWidth = sprite.width > 0 ? sprite.width : 480;
     const logicalHeight = sprite.height > 0 ? sprite.height : 280;
 
     return {
       x: ((event.clientX - rect.left) / rect.width) * logicalWidth,
-      y: ((event.clientY - rect.top) / rect.height) * logicalHeight
+      y: ((event.clientY - rect.top) / rect.height) * logicalHeight,
     };
   }
 
   private async drawCanvas(
     sprite: SpriteResult | undefined,
     selectedIconId = this.selectedIconId,
-    previewTargetId?: string
+    previewTargetId?: string,
   ) {
     const canvas = this.container.querySelector<HTMLCanvasElement>(".mse-canvas");
     if (!canvas) {
@@ -897,7 +922,7 @@ function toCustomPackedIcon(icon: SvgIconInput): PackedIcon {
     rotation,
     viewBox: icon.viewBox,
     x: 0,
-    y: 0
+    y: 0,
   };
 }
 
@@ -909,8 +934,8 @@ function getCustomSpriteSize(icons: PackedIcon[], axis: "width" | "height") {
   return Math.ceil(
     Math.max(
       ...icons.map((icon) => (axis === "width" ? icon.x + icon.width : icon.y + icon.height)),
-      0
-    )
+      0,
+    ),
   );
 }
 
@@ -922,7 +947,12 @@ function getDistance(left: CanvasPoint, right: CanvasPoint) {
   return Math.hypot(left.x - right.x, left.y - right.y);
 }
 
-function drawPreviewFrame(context: CanvasRenderingContext2D, icon: PackedIcon, zoom: number, color: string) {
+function drawPreviewFrame(
+  context: CanvasRenderingContext2D,
+  icon: PackedIcon,
+  zoom: number,
+  color: string,
+) {
   const lineWidth = 2 / zoom;
   const inset = lineWidth / 2;
 
@@ -934,7 +964,7 @@ function drawPreviewFrame(context: CanvasRenderingContext2D, icon: PackedIcon, z
     icon.x + inset,
     icon.y + inset,
     Math.max(0, icon.width - lineWidth),
-    Math.max(0, icon.height - lineWidth)
+    Math.max(0, icon.height - lineWidth),
   );
   context.restore();
 }
@@ -955,7 +985,12 @@ function rotateBy(rotation: SpriteRotation, delta: 90 | -90): SpriteRotation {
   return nextRotation === 90 || nextRotation === 180 || nextRotation === 270 ? nextRotation : 0;
 }
 
-function drawCanvasIcon(context: CanvasRenderingContext2D, image: HTMLImageElement, icon: PackedIcon, opacity = 1) {
+function drawCanvasIcon(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  icon: PackedIcon,
+  opacity = 1,
+) {
   context.save();
   context.globalAlpha = opacity;
   context.translate(icon.x, icon.y);
@@ -981,7 +1016,7 @@ function drawDragGhost(
   icon: PackedIcon,
   pointer: CanvasPoint,
   zoom: number,
-  color: string
+  color: string,
 ) {
   const x = pointer.x - icon.width / 2;
   const y = pointer.y - icon.height / 2;
@@ -1002,7 +1037,7 @@ function drawDragGhost(
     y - padding,
     icon.width + padding * 2,
     icon.height + padding * 2,
-    Math.min(6 / zoom, Math.min(icon.width, icon.height) / 2)
+    Math.min(6 / zoom, Math.min(icon.width, icon.height) / 2),
   );
   context.fill();
   context.stroke();
@@ -1011,7 +1046,12 @@ function drawDragGhost(
   drawCanvasIcon(context, image, { ...icon, x, y }, 0.9);
 }
 
-function drawSelectionFrame(context: CanvasRenderingContext2D, icon: PackedIcon, zoom: number, color: string) {
+function drawSelectionFrame(
+  context: CanvasRenderingContext2D,
+  icon: PackedIcon,
+  zoom: number,
+  color: string,
+) {
   const lineWidth = 2 / zoom;
   const inset = lineWidth / 2;
 
@@ -1023,7 +1063,7 @@ function drawSelectionFrame(context: CanvasRenderingContext2D, icon: PackedIcon,
     icon.x + inset,
     icon.y + inset,
     Math.max(0, icon.width - lineWidth),
-    Math.max(0, icon.height - lineWidth)
+    Math.max(0, icon.height - lineWidth),
   );
   context.restore();
 }

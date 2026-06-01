@@ -6,7 +6,7 @@ import type {
   SpritePackingLogic,
   SpriteResult,
   SpriteRotation,
-  SvgIconInput
+  SvgIconInput,
 } from "./types";
 
 const defaultSpriteOptions = {
@@ -19,7 +19,7 @@ const defaultSpriteOptions = {
   square: false,
   allowRotation: false,
   logic: "max-edge",
-  preserveOrder: false
+  preserveOrder: false,
 } as const;
 
 type PackableIcon = SvgIconInput & {
@@ -41,7 +41,7 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
       width: 0,
       height: 0,
       icons: [],
-      json: {}
+      json: {},
     };
   }
 
@@ -50,7 +50,7 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
   for (const icon of packableIcons) {
     if (icon.width > resolvedOptions.maxWidth || icon.height > resolvedOptions.maxHeight) {
       throw new Error(
-        `Icon "${icon.name}" (${icon.width}x${icon.height}) exceeds the sprite bounds ${resolvedOptions.maxWidth}x${resolvedOptions.maxHeight}.`
+        `Icon "${icon.name}" (${icon.width}x${icon.height}) exceeds the sprite bounds ${resolvedOptions.maxWidth}x${resolvedOptions.maxHeight}.`,
       );
     }
   }
@@ -65,8 +65,8 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
       square: resolvedOptions.square,
       allowRotation: false,
       border: resolvedOptions.border,
-      logic: toPackerLogic(resolvedOptions.logic)
-    }
+      logic: toPackerLogic(resolvedOptions.logic),
+    },
   );
 
   if (resolvedOptions.preserveOrder) {
@@ -79,7 +79,7 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
 
   if (packer.bins.length !== 1) {
     throw new Error(
-      `Icons could not fit into a single sprite within ${resolvedOptions.maxWidth}x${resolvedOptions.maxHeight}.`
+      `Icons could not fit into a single sprite within ${resolvedOptions.maxWidth}x${resolvedOptions.maxHeight}.`,
     );
   }
 
@@ -101,7 +101,7 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
     width: bin.width,
     height: bin.height,
     icons: packedIcons,
-    json: createSpriteJson(packedIcons, 1)
+    json: createSpriteJson(packedIcons, 1),
   };
 }
 
@@ -113,7 +113,7 @@ export function resolveSpriteOptions(options: SpriteOptions = {}): Required<Spri
   return {
     ...defaultSpriteOptions,
     ...options,
-    allowRotation: false
+    allowRotation: false,
   };
 }
 
@@ -143,7 +143,7 @@ function toPackableIcon(icon: SvgIconInput): PackableIcon {
     height: rotatesBounds ? icon.width : icon.height,
     rotation,
     x: 0,
-    y: 0
+    y: 0,
   };
 }
 
@@ -176,6 +176,6 @@ function toPackedIcon(rect: PackableIcon): PackedIcon {
     rotation: rect.rotation,
     viewBox: rect.viewBox,
     x: rect.x,
-    y: rect.y
+    y: rect.y,
   };
 }

@@ -12,14 +12,17 @@ describe("createSprite", () => {
     expect(sprite.json.valve).toMatchObject({
       width: 32,
       height: 32,
-      pixelRatio: 1
+      pixelRatio: 1,
     });
     expect(Number.isFinite(sprite.json.valve.x)).toBe(true);
     expect(Number.isFinite(sprite.json.valve.y)).toBe(true);
   });
 
   it("uses the later icon when names collide", () => {
-    const sprite = createSprite([icon("valve", 16, 16, "old.svg"), icon("valve", 20, 20, "new.svg")]);
+    const sprite = createSprite([
+      icon("valve", 16, 16, "old.svg"),
+      icon("valve", 20, 20, "new.svg"),
+    ]);
 
     expect(sprite.icons).toHaveLength(1);
     expect(sprite.icons[0].fileName).toBe("new.svg");
@@ -35,7 +38,7 @@ describe("createSprite", () => {
       height: sprite.json.valve.height * 2,
       x: sprite.json.valve.x * 2,
       y: sprite.json.valve.y * 2,
-      pixelRatio: 2
+      pixelRatio: 2,
     });
   });
 
@@ -47,12 +50,12 @@ describe("createSprite", () => {
       sourceHeight: 30,
       width: 30,
       height: 20,
-      rotation: 90
+      rotation: 90,
     });
     expect(sprite.json.meter).toMatchObject({
       width: 30,
       height: 20,
-      pixelRatio: 1
+      pixelRatio: 1,
     });
   });
 
@@ -65,10 +68,10 @@ describe("createSprite", () => {
     expect(resolveSpriteOptions({ logic: "max-area" }).logic).toBe("max-area");
 
     const edgeSprite = createSprite([icon("wide", 40, 12), icon("tall", 12, 40)], {
-      logic: "max-edge"
+      logic: "max-edge",
     });
     const areaSprite = createSprite([icon("wide", 40, 12), icon("tall", 12, 40)], {
-      logic: "max-area"
+      logic: "max-area",
     });
 
     expect(edgeSprite.json.wide.pixelRatio).toBe(1);
@@ -77,7 +80,7 @@ describe("createSprite", () => {
 
   it("can preserve caller order when packing icons", () => {
     const sprite = createSprite([icon("small", 10, 10), icon("large", 30, 30)], {
-      preserveOrder: true
+      preserveOrder: true,
     });
 
     expect(sprite.icons.map((packedIcon) => packedIcon.name)).toEqual(["small", "large"]);
@@ -92,6 +95,6 @@ function icon(name: string, width: number, height: number, fileName = `${name}.s
     fileName,
     svgText: `<svg width="${width}" height="${height}"></svg>`,
     width,
-    height
+    height,
   };
 }

@@ -9,7 +9,7 @@ export default defineConfig({
     lib: {
       entry: "src/index.ts",
       name: "MapSprite",
-      fileName: "map-sprite"
+      fileName: "map-sprite",
     },
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime"],
@@ -17,12 +17,12 @@ export default defineConfig({
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
-          "react/jsx-runtime": "React"
-        }
-      }
-    }
+          "react/jsx-runtime": "React",
+        },
+      },
+    },
   },
   test: {
-    environment: "jsdom"
-  }
+    environment: "jsdom",
+  },
 });

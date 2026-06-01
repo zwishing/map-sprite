@@ -10,7 +10,7 @@ export default function App() {
     }
 
     const editor = new MapSpriteEditor({
-      container: containerRef.current
+      container: containerRef.current,
     });
 
     return () => editor.destroy();

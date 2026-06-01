@@ -5,7 +5,7 @@ import type { ExportSpriteZipOptions, SpriteResult } from "./types";
 
 export async function exportSpriteZip(
   sprite: SpriteResult,
-  options: ExportSpriteZipOptions = {}
+  options: ExportSpriteZipOptions = {},
 ): Promise<Blob> {
   const includeNormal = options.includeNormal ?? true;
   const includeRetina = options.includeRetina ?? true;

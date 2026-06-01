@@ -21,6 +21,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 examples/react-basic",
     "build": "vite build",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -37,6 +39,7 @@
     "maxrects-packer": "^2.7.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",

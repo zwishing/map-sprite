@@ -15,5 +15,5 @@ export type {
   SpritePngRenderer,
   SpriteResult,
   SpriteRotation,
-  SvgIconInput
+  SvgIconInput,
 } from "./types";

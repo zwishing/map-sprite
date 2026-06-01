@@ -21,7 +21,7 @@ describe("parseSvgText", () => {
   it("parses root style dimensions before falling back to viewBox", () => {
     const icon = parseSvgText(
       '<svg style="width: 20px; height: 30px;" viewBox="0 0 24 24"></svg>',
-      "styled.svg"
+      "styled.svg",
     );
 
     expect(icon.width).toBe(20);
