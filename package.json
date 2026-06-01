@@ -15,10 +15,11 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 127.0.0.1 examples/react-basic",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
