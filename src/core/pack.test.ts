@@ -86,6 +86,23 @@ describe("createSprite", () => {
     expect(sprite.icons.map((packedIcon) => packedIcon.name)).toEqual(["small", "large"]);
     expect(Object.keys(sprite.json)).toEqual(["small", "large"]);
   });
+
+  it("searches compact layouts when caller order is not preserved", () => {
+    const sprite = createSprite(
+      [
+        icon("wide-a", 80, 30),
+        icon("wide-b", 80, 30),
+        icon("tall-a", 30, 80),
+        icon("tall-b", 30, 80),
+        icon("square", 50, 50),
+      ],
+      {
+        preserveOrder: false,
+      },
+    );
+
+    expect(sprite.width * sprite.height).toBeLessThan(19564);
+  });
 });
 
 function icon(name: string, width: number, height: number, fileName = `${name}.svg`): SvgIconInput {

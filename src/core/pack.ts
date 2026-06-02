@@ -32,6 +32,12 @@ type PackableIcon = SvgIconInput & {
   oversized?: boolean;
 };
 
+type PackedAttempt = {
+  width: number;
+  height: number;
+  rects: PackableIcon[];
+};
+
 export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {}): SpriteResult {
   const resolvedOptions = resolveSpriteOptions(options);
   const uniqueIcons = dedupeIconsByName(icons);
@@ -55,37 +61,18 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
     }
   }
 
-  const packer = new MaxRectsPacker<PackableIcon>(
-    resolvedOptions.maxWidth,
-    resolvedOptions.maxHeight,
-    resolvedOptions.padding,
-    {
-      smart: resolvedOptions.smart,
-      pot: resolvedOptions.pot,
-      square: resolvedOptions.square,
-      allowRotation: false,
-      border: resolvedOptions.border,
-      logic: toPackerLogic(resolvedOptions.logic),
-    },
-  );
+  const packedAttempt = resolvedOptions.preserveOrder
+    ? packInOrder(packableIcons, resolvedOptions)
+    : packCompact(packableIcons, resolvedOptions);
 
-  if (resolvedOptions.preserveOrder) {
-    for (const icon of packableIcons) {
-      packer.add(icon);
-    }
-  } else {
-    packer.addArray(packableIcons);
-  }
-
-  if (packer.bins.length !== 1) {
+  if (!packedAttempt) {
     throw new Error(
       `Icons could not fit into a single sprite within ${resolvedOptions.maxWidth}x${resolvedOptions.maxHeight}.`,
     );
   }
 
-  const [bin] = packer.bins;
   const orderIndexById = new Map(packableIcons.map((icon, index) => [icon.id, index]));
-  const packedIcons = bin.rects.map(toPackedIcon).sort((left, right) => {
+  const packedIcons = packedAttempt.rects.map(toPackedIcon).sort((left, right) => {
     if (resolvedOptions.preserveOrder) {
       return (orderIndexById.get(left.id) ?? 0) - (orderIndexById.get(right.id) ?? 0);
     }
@@ -98,8 +85,8 @@ export function createSprite(icons: SvgIconInput[], options: SpriteOptions = {})
   });
 
   return {
-    width: bin.width,
-    height: bin.height,
+    width: packedAttempt.width,
+    height: packedAttempt.height,
     icons: packedIcons,
     json: createSpriteJson(packedIcons, 1),
   };
@@ -115,6 +102,208 @@ export function resolveSpriteOptions(options: SpriteOptions = {}): Required<Spri
     ...options,
     allowRotation: false,
   };
+}
+
+function packInOrder(
+  icons: PackableIcon[],
+  options: Required<SpriteOptions>,
+): PackedAttempt | undefined {
+  return packOrderedIcons(
+    icons,
+    options,
+    icons.map((_, index) => index),
+    options.maxWidth,
+  );
+}
+
+function packCompact(
+  icons: PackableIcon[],
+  options: Required<SpriteOptions>,
+): PackedAttempt | undefined {
+  let bestAttempt: PackedAttempt | undefined;
+
+  for (const order of getCompactOrderCandidates(icons, options.logic)) {
+    for (const maxWidth of getCompactWidthCandidates(icons, options)) {
+      const attempt = packOrderedIcons(icons, options, order, maxWidth);
+      if (attempt && isBetterPackedAttempt(attempt, bestAttempt)) {
+        bestAttempt = attempt;
+      }
+    }
+  }
+
+  return bestAttempt;
+}
+
+function packOrderedIcons(
+  icons: PackableIcon[],
+  options: Required<SpriteOptions>,
+  order: number[],
+  maxWidth: number,
+): PackedAttempt | undefined {
+  const orderedIcons = order.map((index) => clonePackableIcon(icons[index]));
+  const packer = new MaxRectsPacker<PackableIcon>(maxWidth, options.maxHeight, options.padding, {
+    smart: options.smart,
+    pot: options.pot,
+    square: options.square,
+    allowRotation: false,
+    border: options.border,
+    logic: toPackerLogic(options.logic),
+  });
+
+  for (const icon of orderedIcons) {
+    packer.add(icon);
+  }
+
+  if (packer.bins.length !== 1) {
+    return undefined;
+  }
+
+  const [bin] = packer.bins;
+  return {
+    width: bin.width,
+    height: bin.height,
+    rects: bin.rects,
+  };
+}
+
+function clonePackableIcon(icon: PackableIcon): PackableIcon {
+  return {
+    ...icon,
+    x: 0,
+    y: 0,
+    rot: undefined,
+    oversized: undefined,
+  };
+}
+
+function getCompactOrderCandidates(icons: PackableIcon[], logic: SpritePackingLogic): number[][] {
+  const bySelectedLogic =
+    logic === "max-area"
+      ? compareBy((icon) => icon.width * icon.height)
+      : compareBy((icon) => Math.max(icon.width, icon.height));
+
+  return dedupeOrders([
+    sortIconIndexes(icons, bySelectedLogic),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => Math.max(icon.width, icon.height)),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.width * icon.height),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.width),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.height),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.width + icon.height),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.width / icon.height),
+    ),
+    sortIconIndexes(
+      icons,
+      compareBy((icon) => icon.height / icon.width),
+    ),
+  ]);
+}
+
+function compareBy(metric: (icon: PackableIcon) => number) {
+  return (left: PackableIcon, right: PackableIcon) => {
+    const metricDelta = metric(right) - metric(left);
+    if (metricDelta !== 0) {
+      return metricDelta;
+    }
+
+    return right.width * right.height - left.width * left.height;
+  };
+}
+
+function sortIconIndexes(
+  icons: PackableIcon[],
+  compare: (left: PackableIcon, right: PackableIcon) => number,
+): number[] {
+  return icons
+    .map((icon, index) => ({ icon, index }))
+    .sort((left, right) => compare(left.icon, right.icon))
+    .map(({ index }) => index);
+}
+
+function dedupeOrders(orders: number[][]): number[][] {
+  const seen = new Set<string>();
+  return orders.filter((order) => {
+    const key = order.join(",");
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function getCompactWidthCandidates(
+  icons: PackableIcon[],
+  options: Required<SpriteOptions>,
+): number[] {
+  if (!options.smart) {
+    return [options.maxWidth];
+  }
+
+  const largestIconWidth = Math.max(...icons.map((icon) => icon.width));
+  const paddedArea = icons.reduce(
+    (area, icon) => area + (icon.width + options.padding) * (icon.height + options.padding),
+    0,
+  );
+  const targetWidth = Math.ceil(Math.sqrt(paddedArea));
+  const widths = new Set([largestIconWidth, targetWidth, options.maxWidth]);
+
+  let steppedWidth = largestIconWidth;
+  while (steppedWidth < options.maxWidth) {
+    widths.add(steppedWidth);
+    steppedWidth = Math.max(steppedWidth + 1, Math.ceil(steppedWidth * 1.25));
+  }
+
+  let rowWidth = 0;
+  for (const icon of [...icons].sort(compareBy((icon) => Math.max(icon.width, icon.height)))) {
+    rowWidth += rowWidth === 0 ? icon.width : icon.width + options.padding;
+    if (rowWidth <= options.maxWidth) {
+      widths.add(rowWidth);
+    }
+  }
+
+  return [...widths]
+    .filter((width) => width >= largestIconWidth && width <= options.maxWidth)
+    .sort((left, right) => left - right);
+}
+
+function isBetterPackedAttempt(
+  attempt: PackedAttempt,
+  currentBest: PackedAttempt | undefined,
+): boolean {
+  if (!currentBest) {
+    return true;
+  }
+
+  const attemptArea = attempt.width * attempt.height;
+  const currentArea = currentBest.width * currentBest.height;
+  if (attemptArea !== currentArea) {
+    return attemptArea < currentArea;
+  }
+
+  const attemptLongestEdge = Math.max(attempt.width, attempt.height);
+  const currentLongestEdge = Math.max(currentBest.width, currentBest.height);
+  if (attemptLongestEdge !== currentLongestEdge) {
+    return attemptLongestEdge < currentLongestEdge;
+  }
+
+  return attempt.width + attempt.height < currentBest.width + currentBest.height;
 }
 
 function toPackerLogic(logic: SpritePackingLogic): PACKING_LOGIC {

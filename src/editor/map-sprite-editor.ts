@@ -32,6 +32,7 @@ export class MapSpriteEditor {
   private hoveredIcon: PackedIcon | undefined;
   private layoutMode: MapSpriteEditorLayout;
   private iconPadding: number;
+  private preserveOrder: boolean;
   private zoom: number;
   private themeColor: string;
   private error: string | undefined;
@@ -54,6 +55,7 @@ export class MapSpriteEditor {
     this.icons = options.icons ?? [];
     this.layoutMode = options.logic ?? "max-edge";
     this.iconPadding = options.padding ?? 2;
+    this.preserveOrder = options.preserveOrder ?? true;
     this.zoom = options.zoom ?? 4;
     this.themeColor = normalizeThemeColor(options.themeColor);
     this.onChange = options.onChange;
@@ -164,7 +166,7 @@ export class MapSpriteEditor {
     return createSprite(icons, {
       logic: this.layoutMode as SpritePackingLogic,
       padding: this.iconPadding,
-      preserveOrder: true,
+      preserveOrder: this.preserveOrder,
     });
   }
 
@@ -266,6 +268,9 @@ export class MapSpriteEditor {
                 </label>
                 <label>Gap
                   <input class="mse-gap" min="0" max="64" step="1" type="number" value="${this.iconPadding}" />
+                </label>
+                <label class="mse-order-label">Keep order
+                  <input class="mse-preserve-order" type="checkbox" ${this.preserveOrder ? "checked" : ""} ${this.isCustomLayout() ? "disabled" : ""} />
                 </label>
                 <label>Zoom
                   <select class="mse-zoom">
@@ -379,6 +384,15 @@ export class MapSpriteEditor {
           this.reflowCustomPositions(this.icons);
         }
         this.render();
+      });
+
+    this.container
+      .querySelector<HTMLInputElement>(".mse-preserve-order")
+      ?.addEventListener("change", (event) => {
+        this.preserveOrder = (event.currentTarget as HTMLInputElement).checked;
+        if (!this.isCustomLayout()) {
+          this.render();
+        }
       });
 
     this.container

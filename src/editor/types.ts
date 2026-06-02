@@ -7,6 +7,7 @@ export interface MapSpriteEditorOptions {
   icons?: SvgIconInput[];
   logic?: MapSpriteEditorLayout;
   padding?: number;
+  preserveOrder?: boolean;
   zoom?: number;
   themeColor?: string;
   onChange?: (state: MapSpriteEditorState) => void;

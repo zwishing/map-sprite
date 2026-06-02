@@ -210,6 +210,18 @@ export const editorStyles = `
   width: 64px;
   padding: 0 8px;
 }
+.mse-tool-group .mse-order-label {
+  gap: 6px;
+}
+.mse-tool-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  cursor: pointer;
+}
+.mse-tool-group input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
 .mse-tool-group input[type="color"] {
   width: 38px;
   padding: 2px;
