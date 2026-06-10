@@ -1,6 +1,6 @@
 {
   "name": "map-sprite",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-independent TypeScript utilities for generating MapLibre and Mapbox sprite assets from SVG icons.",
   "type": "module",
   "main": "./dist/map-sprite.umd.cjs",
